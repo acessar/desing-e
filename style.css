@@ -272,7 +272,7 @@ body::after {
     font-weight: 300;
     letter-spacing: 1px;
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     font-family: 'Inter', sans-serif;
 }
 
@@ -281,7 +281,7 @@ body::after {
     width: 200px;
     height: 2px;
     background: linear-gradient(90deg, transparent, #5B00FF, transparent);
-    margin: 0 auto 3rem auto;
+    margin: 0 auto 0.5rem auto;
     box-shadow: 0 0 15px rgba(91, 0, 255, 0.8);
     animation: fadeInUp 0.8s ease-out 0.7s both;
 }
@@ -346,7 +346,7 @@ body::after {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    margin-top: 1rem;
+    margin-top: 0;
     align-items: center;
     width: 100%;
     max-width: 400px;
@@ -591,6 +591,89 @@ body::after {
 .button-container p.text {
     color: rgba(255, 255, 255, 0.85);
     font-weight: 400;
+}
+
+/* Container de Ícones de Redes Sociais */
+.social-icons-container {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+    margin-top: 0;
+    width: 100%;
+}
+
+/* Ícones de Redes Sociais - Apenas ícones */
+.social-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    box-shadow: 
+        0 0 15px rgba(138, 43, 226, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease-out;
+    cursor: pointer;
+    text-decoration: none;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Reflexo diagonal nos ícones */
+.social-icon::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    opacity: 0.07;
+    background: linear-gradient(
+        135deg, 
+        transparent 40%, 
+        rgba(255, 255, 255, 0.4) 50%, 
+        transparent 60%
+    );
+    transform: rotate(-45deg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.social-icon:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(168, 85, 247, 0.6);
+    box-shadow: 
+        0 0 25px rgba(138, 43, 226, 0.5),
+        0 0 50px rgba(106, 0, 244, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.social-icon:active {
+    transform: scale(0.95);
+}
+
+.social-icon-svg {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+    stroke-width: 2.5;
+    transition: all 0.3s ease;
+}
+
+.social-icon:hover .social-icon-svg {
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
+    transform: scale(1.05);
 }
 
 /* Botão Flutuante WhatsApp Tech */
@@ -842,6 +925,21 @@ footer {
         height: 52px;
     }
     
+    .social-icon {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .social-icon-svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .social-icons-container {
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+    
     .map-wrapper {
         height: 250px;
     }
@@ -931,17 +1029,131 @@ footer {
         max-width: 260px;
         padding: 0.8rem 1.2rem;
     }
+    
+    .social-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .social-icon-svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .social-icons-container {
+        gap: 0.6rem;
+        margin-bottom: 0.6rem;
+    }
 }
 
 /* Ajuste para Tablets e PC */
 @media (min-width: 768px) {
-    .service-card {
-        flex: 0 0 30%;
-        min-width: 300px;
+    .services-carousel-container {
+        max-width: 1400px;
+        padding: 0 2rem;
     }
     
     .services-carousel {
-        justify-content: center;
+        justify-content: flex-start;
         padding-left: 0;
+        overflow-x: auto;
+        gap: 1.5rem;
+    }
+    
+    .service-card {
+        flex: 0 0 calc(25% - 1.125rem);
+        min-width: 280px;
+        max-width: 320px;
+    }
+    
+    /* Card 1 - Primeiro card completamente visível */
+    .service-card-1 {
+        flex: 0 0 calc(25% - 1.125rem);
+        min-width: 280px;
+        max-width: 320px;
+        scroll-snap-align: start;
+    }
+    
+    /* Card 2 */
+    .service-card-2 {
+        flex: 0 0 calc(25% - 1.125rem);
+        min-width: 280px;
+        max-width: 320px;
+        scroll-snap-align: start;
+    }
+    
+    /* Card 3 */
+    .service-card-3 {
+        flex: 0 0 calc(25% - 1.125rem);
+        min-width: 280px;
+        max-width: 320px;
+        scroll-snap-align: start;
+    }
+    
+    /* Card 4 */
+    .service-card-4 {
+        flex: 0 0 calc(25% - 1.125rem);
+        min-width: 280px;
+        max-width: 320px;
+        scroll-snap-align: start;
+    }
+}
+
+/* Ajuste para Desktop grande */
+@media (min-width: 1200px) {
+    .services-carousel-container {
+        max-width: 1600px;
+        padding: 0 3rem;
+    }
+    
+    .services-carousel {
+        padding-left: 0;
+        gap: 2rem;
+        justify-content: center;
+    }
+    
+    .service-card {
+        flex: 0 0 calc(25% - 1.5rem);
+        min-width: 300px;
+        max-width: 350px;
+    }
+    
+    .service-card-1,
+    .service-card-2,
+    .service-card-3,
+    .service-card-4 {
+        flex: 0 0 calc(25% - 1.5rem);
+        min-width: 300px;
+        max-width: 350px;
+    }
+}
+
+/* Ajuste para Desktop extra grande - Todos os cards visíveis */
+@media (min-width: 1600px) {
+    .services-carousel-container {
+        max-width: 1800px;
+        padding: 0 4rem;
+    }
+    
+    .services-carousel {
+        padding-left: 0;
+        gap: 2.5rem;
+        justify-content: center;
+        overflow-x: visible;
+    }
+    
+    .service-card {
+        flex: 0 0 calc(25% - 1.875rem);
+        min-width: 320px;
+        max-width: 380px;
+    }
+    
+    .service-card-1,
+    .service-card-2,
+    .service-card-3,
+    .service-card-4 {
+        flex: 0 0 calc(25% - 1.875rem);
+        min-width: 320px;
+        max-width: 380px;
     }
 }
