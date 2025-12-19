@@ -136,8 +136,8 @@ body {
    1. HEADER / TOPO
    ========================================= */
 .header {
-    padding-top: var(--space-xl);
-    padding-bottom: var(--space-lg);
+    padding-top: var(--space-md);
+    padding-bottom: var(--space-sm);
     text-align: center;
     animation: fadeInDown 0.8s ease-out;
 }
@@ -145,7 +145,7 @@ body {
 .header__logo {
     width: 120px;
     height: 120px;
-    margin: 0 auto var(--space-md);
+    margin: 0 auto var(--space-xs);
     border-radius: var(--radius-full);
     overflow: hidden;
     border: 1px solid var(--color-border-accent);
@@ -181,7 +181,7 @@ body {
     font-weight: 400;
     letter-spacing: 0.3em;
     color: var(--color-text);
-    margin-bottom: var(--space-xs);
+    margin-bottom: 0.25rem;
     text-shadow: 0 0 30px var(--color-accent-glow);
 }
 
@@ -202,7 +202,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: var(--space-lg);
-    padding: var(--space-lg) 0;
+    padding: var(--space-sm) 0;
     animation: fadeIn 0.8s ease-out 0.2s both;
 }
 
@@ -216,15 +216,20 @@ body {
     color: var(--color-text);
     text-decoration: none;
     
-    /* Glassmorphism */
-    background: var(--color-surface);
+    /* Glassmorphism with purple gradient similar to button */
+    background: linear-gradient(
+        135deg,
+        rgba(124, 58, 237, 0.12) 0%,
+        rgba(124, 58, 237, 0.04) 100%
+    );
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border-accent);
     
-    /* Subtle depth */
+    /* Purple glow similar to button */
     box-shadow: 
         0 4px 20px rgba(0, 0, 0, 0.3),
+        0 0 20px rgba(124, 58, 237, 0.1),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
     
     transition: var(--transition-smooth);
@@ -237,12 +242,17 @@ body {
 }
 
 .social-icons__item:hover {
-    background: var(--color-surface-hover);
-    border-color: var(--color-border-accent);
+    background: linear-gradient(
+        135deg,
+        rgba(124, 58, 237, 0.2) 0%,
+        rgba(124, 58, 237, 0.08) 100%
+    );
+    border-color: rgba(124, 58, 237, 0.5);
     box-shadow: 
         0 8px 30px rgba(0, 0, 0, 0.4),
-        0 0 20px var(--color-accent-soft),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        0 0 30px rgba(124, 58, 237, 0.25),
+        0 0 60px rgba(124, 58, 237, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transform: translateY(-2px);
 }
 
@@ -259,7 +269,7 @@ body {
    3. CTA BUTTON
    ========================================= */
 .cta-section {
-    padding: var(--space-md) 0 var(--space-lg);
+    padding: var(--space-sm) 0 var(--space-md);
     text-align: center;
     animation: fadeInUp 0.8s ease-out 0.4s both;
 }
@@ -362,7 +372,7 @@ body {
    ========================================= */
 .products {
     position: relative;
-    padding: var(--space-lg) 0 var(--space-xl);
+    padding: var(--space-lg) 0 var(--space-md);
     margin: 0 calc(var(--space-md) * -1);
     animation: fadeIn 0.8s ease-out 0.6s both;
 }
@@ -388,13 +398,15 @@ body {
    PRODUCT CARD - Premium Design
    ========================================= */
 .product-card {
-    flex: 0 0 80%;
-    min-width: 80%;
+    flex: 0 0 78%;
+    min-width: 78%;
     padding: 0 var(--space-xs);
     user-select: none;
     opacity: 0.4;
     transform: scale(0.92);
-    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    /* Transição longa com curva que mantém brilho até quase sair */
+    /* cubic-bezier(0.1, 0, 0.05, 1) começa muito devagar, mantém valor alto por ~70% do tempo */
+    transition: opacity 3s cubic-bezier(0.1, 0, 0.05, 1), transform 3s cubic-bezier(0.1, 0, 0.05, 1);
 }
 
 /* Cards clonados herdam os mesmos estilos */
@@ -438,7 +450,9 @@ body {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     
-    transition: box-shadow 0.5s ease-in-out, border-color 0.5s ease-in-out;
+    /* Transição longa com curva que mantém brilho até quase sair */
+    /* cubic-bezier(0.1, 0, 0.05, 1) começa muito devagar, mantém valor alto por ~70% do tempo */
+    transition: box-shadow 3s cubic-bezier(0.1, 0, 0.05, 1), border-color 3s cubic-bezier(0.1, 0, 0.05, 1);
 }
 
 .product-card.active .product-card__inner {
@@ -636,7 +650,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 10px;
-    padding-top: var(--space-lg);
+    padding-top: var(--space-md);
 }
 
 .products__dot {
@@ -669,9 +683,10 @@ body {
    ========================================= */
 .footer {
     text-align: center;
-    padding: var(--space-lg) var(--space-md);
+    padding: var(--space-md) var(--space-md);
     border-top: 1px solid var(--color-border);
     background: rgba(0, 0, 0, 0.3);
+    margin-top: 0;
 }
 
 .footer__copyright {
@@ -733,8 +748,8 @@ body {
    ========================================= */
 @media (max-width: 380px) {
     .product-card {
-        flex: 0 0 85%;
-        min-width: 85%;
+        flex: 0 0 83%;
+        min-width: 83%;
     }
     
     .product-card__inner {
@@ -774,7 +789,8 @@ body {
     }
     
     .header {
-        padding-top: var(--space-2xl);
+        padding-top: var(--space-lg);
+        padding-bottom: var(--space-sm);
     }
     
     .header__logo {
@@ -793,8 +809,8 @@ body {
     
     /* Carousel Tablet */
     .product-card {
-        flex: 0 0 60%;
-        min-width: 60%;
+        flex: 0 0 59%;
+        min-width: 59%;
     }
     
     .product-card__inner {
@@ -844,19 +860,19 @@ body {
     }
     
     .header {
-        padding-top: calc(var(--space-2xl) + var(--space-lg));
-        padding-bottom: var(--space-xl);
+        padding-top: var(--space-lg);
+        padding-bottom: var(--space-sm);
     }
     
     .header__logo {
         width: 160px;
         height: 160px;
-        margin-bottom: var(--space-lg);
+        margin-bottom: var(--space-xs);
     }
     
     .header__brand {
         font-size: 3.5rem;
-        margin-bottom: var(--space-sm);
+        margin-bottom: 0.25rem;
     }
     
     .header__tagline {
@@ -865,7 +881,7 @@ body {
     
     .social-icons {
         gap: var(--space-xl);
-        padding: var(--space-xl) 0;
+        padding: var(--space-sm) 0;
     }
     
     .social-icons__item {
@@ -879,7 +895,7 @@ body {
     }
     
     .cta-section {
-        padding: var(--space-lg) 0 var(--space-xl);
+        padding: var(--space-sm) 0 var(--space-md);
     }
     
     .cta-button {
@@ -901,13 +917,13 @@ body {
     
     /* Carousel Desktop */
     .products {
-        padding: var(--space-xl) 0 var(--space-2xl);
+        padding: var(--space-xl) 0 var(--space-lg);
         margin: 0 calc(var(--space-xl) * -1);
     }
     
     .product-card {
-        flex: 0 0 50%;
-        min-width: 50%;
+        flex: 0 0 49%;
+        min-width: 49%;
         padding: 0 var(--space-sm);
     }
     
@@ -950,7 +966,7 @@ body {
     
     .products__indicators {
         gap: 14px;
-        padding-top: var(--space-xl);
+        padding-top: var(--space-lg);
     }
     
     .products__dot {
@@ -960,8 +976,8 @@ body {
     
     /* Footer Desktop */
     .footer {
-        padding: var(--space-xl) var(--space-lg);
-        margin-top: var(--space-lg);
+        padding: var(--space-lg) var(--space-lg);
+        margin-top: 0;
     }
     
     .footer__copyright {
@@ -992,8 +1008,8 @@ body {
     }
     
     .product-card {
-        flex: 0 0 45%;
-        min-width: 45%;
+        flex: 0 0 44%;
+        min-width: 44%;
     }
     
     .product-card__inner {

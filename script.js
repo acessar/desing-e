@@ -20,12 +20,10 @@ class InfiniteCarousel {
             wrapperSelector: '.products__wrapper',
             carouselSelector: '.products__carousel',
             cardSelector: '.product-card',
-            prevSelector: '.products__nav--prev',
-            nextSelector: '.products__nav--next',
             indicatorsSelector: '.products__indicators',
             autoplay: true,
             autoplayInterval: 4000,
-            transitionDuration: 500, // Transição mais suave
+            transitionDuration: 1000, // Transição mais longa para movimento fluido
             pauseOnHover: true,
             ...options
         };
@@ -40,6 +38,8 @@ class InfiniteCarousel {
         this.startX = 0;
         this.currentX = 0;
         this.dragThreshold = 50;
+        this.animationFrame = null;
+        this.jumpTimeout = null;
 
         // Elementos DOM
         this.container = null;
@@ -47,8 +47,6 @@ class InfiniteCarousel {
         this.carousel = null;
         this.cards = [];
         this.originalCards = [];
-        this.prevBtn = null;
-        this.nextBtn = null;
         this.indicators = null;
         this.dots = [];
 
@@ -62,8 +60,6 @@ class InfiniteCarousel {
         this.wrapper = this.container.querySelector(this.config.wrapperSelector);
         this.carousel = this.container.querySelector(this.config.carouselSelector);
         this.originalCards = [...this.carousel.querySelectorAll(this.config.cardSelector)];
-        this.prevBtn = this.container.querySelector(this.config.prevSelector);
-        this.nextBtn = this.container.querySelector(this.config.nextSelector);
         this.indicators = this.container.querySelector(this.config.indicatorsSelector);
 
         this.totalSlides = this.originalCards.length;
@@ -118,8 +114,8 @@ class InfiniteCarousel {
         // Número de clones no início
         this.clonesBefore = Math.min(2, this.totalSlides);
         
-        // Configurar transição
-        this.carousel.style.transition = `transform ${this.config.transitionDuration}ms ease-in-out`;
+        // Configurar transição linear para movimento contínuo
+        this.carousel.style.transition = `transform ${this.config.transitionDuration}ms linear`;
     }
 
     createIndicators() {
@@ -143,24 +139,6 @@ class InfiniteCarousel {
     }
 
     bindEvents() {
-        // Navegação por botões
-        if (this.prevBtn) {
-            this.prevBtn.addEventListener('click', () => {
-                if (!this.isTransitioning) {
-                    this.prev();
-                    this.resetAutoplayTimer();
-                }
-            });
-        }
-        if (this.nextBtn) {
-            this.nextBtn.addEventListener('click', () => {
-                if (!this.isTransitioning) {
-                    this.next();
-                    this.resetAutoplayTimer();
-                }
-            });
-        }
-
         // Pausar autoplay no hover
         if (this.config.pauseOnHover) {
             this.container.addEventListener('mouseenter', () => this.pauseAutoplay());
@@ -208,31 +186,29 @@ class InfiniteCarousel {
     }
 
     goToSlide(index, animate = true) {
-        if (this.isTransitioning && animate) return;
-
         this.currentIndex = index;
         
-        // Índice real no array de cards (considerando os clones no início)
         const realIndex = index + this.clonesBefore;
-        
         const cardWidth = this.getCardWidth();
         const wrapperWidth = this.getWrapperWidth();
         const centerOffset = (wrapperWidth - cardWidth) / 2;
         const translateX = -(realIndex * cardWidth) + centerOffset;
 
         if (animate) {
-            this.isTransitioning = true;
-            this.carousel.style.transition = `transform ${this.config.transitionDuration}ms ease-in-out`;
+            // Aplicar transição suave
+            this.carousel.style.transition = `transform ${this.config.transitionDuration}ms linear`;
         } else {
             this.carousel.style.transition = 'none';
         }
 
+        // Aplicar transformação imediatamente
         this.carousel.style.transform = `translateX(${translateX}px)`;
 
-        // Forçar reflow se não for animado
         if (!animate) {
-            this.carousel.offsetHeight; // Force reflow
-            this.carousel.style.transition = `transform ${this.config.transitionDuration}ms ease-in-out`;
+            // Forçar reflow para aplicar mudança
+            void this.carousel.offsetHeight;
+            // Restaurar transição
+            this.carousel.style.transition = `transform ${this.config.transitionDuration}ms linear`;
             this.isTransitioning = false;
         }
 
@@ -240,38 +216,81 @@ class InfiniteCarousel {
     }
 
     handleTransitionEnd() {
-        this.isTransitioning = false;
-
-        // Verificar se precisamos fazer o "jump" para criar loop infinito
-        if (this.currentIndex >= this.totalSlides) {
-            // Chegou no clone do início, voltar para o card real
-            this.currentIndex = 0;
-            this.jumpToSlide(this.currentIndex);
-        } else if (this.currentIndex < 0) {
-            // Chegou no clone do final, voltar para o card real
-            this.currentIndex = this.totalSlides - 1;
-            this.jumpToSlide(this.currentIndex);
-        }
+        // Não fazer nada aqui - permitir movimento contínuo
+        // O jump já foi feito durante a transição (via timeout em goToClone)
+        // Não resetar isTransitioning aqui para não causar pausas
     }
 
     jumpToSlide(index) {
-        // Jump instantâneo sem animação
+        // Limpar timeout do autoplay se estiver pendente para evitar conflito
+        if (this.autoplayTimer) {
+            clearTimeout(this.autoplayTimer);
+            this.autoplayTimer = null;
+        }
+        
+        // Limpar timeout do jump se ainda estiver pendente
+        if (this.jumpTimeout) {
+            clearTimeout(this.jumpTimeout);
+            this.jumpTimeout = null;
+        }
+        
+        // Jump instantâneo sem animação - fazer de forma completamente invisível
         const realIndex = index + this.clonesBefore;
         const cardWidth = this.getCardWidth();
         const wrapperWidth = this.getWrapperWidth();
         const centerOffset = (wrapperWidth - cardWidth) / 2;
         const translateX = -(realIndex * cardWidth) + centerOffset;
 
+        // Fazer o jump de forma síncrona para evitar qualquer delay
+        // Desabilitar transição temporariamente
         this.carousel.style.transition = 'none';
         this.carousel.style.transform = `translateX(${translateX}px)`;
         
-        // Forçar reflow
-        this.carousel.offsetHeight;
+        // Forçar reflow para aplicar a mudança imediatamente
+        void this.carousel.offsetHeight;
         
-        // Restaurar transição
-        this.carousel.style.transition = `transform ${this.config.transitionDuration}ms ease-in-out`;
+        // Restaurar transição imediatamente
+        this.carousel.style.transition = `transform ${this.config.transitionDuration}ms linear`;
         
+        // Resetar flag imediatamente
+        this.isTransitioning = false;
+        
+        // Atualizar estados imediatamente
         this.updateActiveStates();
+        
+        // Iniciar próximo movimento IMEDIATAMENTE após o jump
+        // Sem usar requestAnimationFrame para evitar qualquer delay
+        // O jump já foi aplicado sincronamente acima
+        if (this.isPlaying && !this.isDragging) {
+            // Calcular próximo índice e posição diretamente
+            const nextIndex = this.currentIndex + 1;
+            if (nextIndex >= this.totalSlides) {
+                // Se passar do último, vai para o clone
+                this.currentIndex = this.totalSlides;
+                this.goToClone('next');
+            } else {
+                // Ir para o próximo card diretamente
+                this.goToSlide(nextIndex, true);
+            }
+            // Reagendar o próximo movimento do autoplay
+            this.scheduleNextAutoplay();
+        }
+    }
+    
+    scheduleNextAutoplay() {
+        if (!this.isPlaying || this.isDragging) return;
+        
+        // Agendar próximo movimento para começar ANTES da transição terminar
+        // Usar 92% para criar sobreposição e eliminar qualquer pausa
+        // Mas não muito cedo para não interferir com o jump
+        const overlapTime = this.config.transitionDuration * 0.92;
+        this.autoplayTimer = setTimeout(() => {
+            if (!this.isDragging && this.isPlaying) {
+                this.next();
+                // Agendar o próximo movimento imediatamente
+                this.scheduleNextAutoplay();
+            }
+        }, overlapTime);
     }
 
     updateActiveStates() {
@@ -299,17 +318,17 @@ class InfiniteCarousel {
     }
 
     next() {
-        if (this.isTransitioning) return;
+        // Não bloquear se estiver em transição - permitir movimento contínuo
+        // O jump já foi agendado em goToClone, então podemos continuar
         
-        // Avançar para o próximo
         const nextIndex = this.currentIndex + 1;
         
-        // Se passar do último, vai para o clone (que depois fará o jump)
+        // Se passar do último, vai para o clone (que depois fará o jump invisível)
         if (nextIndex >= this.totalSlides) {
-            this.currentIndex = this.totalSlides; // Vai para o clone
+            this.currentIndex = this.totalSlides;
             this.goToClone('next');
         } else {
-            this.goToSlide(nextIndex);
+            this.goToSlide(nextIndex, true);
         }
     }
 
@@ -329,15 +348,18 @@ class InfiniteCarousel {
     }
 
     goToClone(direction) {
-        this.isTransitioning = true;
+        // Não setar isTransitioning para permitir movimento contínuo
         
         let realIndex;
+        let targetIndex;
         if (direction === 'next') {
             // Clone do primeiro card está após os originais
             realIndex = this.totalSlides + this.clonesBefore;
+            targetIndex = 0;
         } else {
             // Clone do último card está no início
             realIndex = this.clonesBefore - 1;
+            targetIndex = this.totalSlides - 1;
         }
 
         const cardWidth = this.getCardWidth();
@@ -345,10 +367,24 @@ class InfiniteCarousel {
         const centerOffset = (wrapperWidth - cardWidth) / 2;
         const translateX = -(realIndex * cardWidth) + centerOffset;
 
-        this.carousel.style.transition = `transform ${this.config.transitionDuration}ms ease-in-out`;
+        this.carousel.style.transition = `transform ${this.config.transitionDuration}ms linear`;
         this.carousel.style.transform = `translateX(${translateX}px)`;
 
         this.updateActiveStates();
+        
+        // Fazer o jump ANTES da transição terminar (85% da duração)
+        // Isso garante que o jump aconteça quando o card ainda está saindo da tela
+        // mas ainda visível o suficiente para o jump ser invisível
+        // E permite que o próximo movimento comece imediatamente após sem pausa
+        const jumpDelay = Math.max(50, this.config.transitionDuration * 0.85);
+        this.jumpTimeout = setTimeout(() => {
+            // Verificar se ainda estamos no clone antes de fazer o jump
+            if ((direction === 'next' && this.currentIndex >= this.totalSlides) ||
+                (direction === 'prev' && this.currentIndex < 0)) {
+                this.currentIndex = targetIndex;
+                this.jumpToSlide(this.currentIndex);
+            }
+        }, jumpDelay);
     }
 
     // =========================================
@@ -357,15 +393,24 @@ class InfiniteCarousel {
     startAutoplay() {
         if (!this.config.autoplay) return;
         this.isPlaying = true;
-        this.autoplayTimer = setInterval(() => {
-            this.next();
-        }, this.config.autoplayInterval);
+        
+        // Iniciar o primeiro movimento imediatamente
+        this.next();
+        this.scheduleNextAutoplay();
     }
 
     stopAutoplay() {
         if (this.autoplayTimer) {
-            clearInterval(this.autoplayTimer);
+            clearTimeout(this.autoplayTimer);
             this.autoplayTimer = null;
+        }
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
+        }
+        if (this.jumpTimeout) {
+            clearTimeout(this.jumpTimeout);
+            this.jumpTimeout = null;
         }
     }
 
@@ -469,9 +514,9 @@ class InfiniteCarousel {
 document.addEventListener('DOMContentLoaded', () => {
     const carousel = new InfiniteCarousel({
         autoplay: true,
-        autoplayInterval: 4000,
-        transitionDuration: 500,
-        pauseOnHover: true
+        autoplayInterval: 2000, // Não usado mais, mas mantido para compatibilidade
+        transitionDuration: 3000, // Transição mais lenta para movimento mais suave
+        pauseOnHover: false // Não pausar no hover para movimento contínuo
     });
 
     window.carousel = carousel;
